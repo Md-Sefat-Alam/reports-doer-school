@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doer School SMS — Progress Snapshot (17 June 2026)</title>
+<style>
+  :root { --primary: #2563eb; --success: #16a34a; --warning: #d97706; --danger: #dc2626; --bg: #f8fafc; --card: #fff; --text: #1e293b; --muted: #64748b; --border: #e2e8f0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }
+  .container { max-width: 1040px; margin: 0 auto; padding: 2rem; }
+  .header { background: linear-gradient(135deg, #16a34a, #2563eb); color: white; border-radius: 14px; padding: 1.6rem 2rem; margin-bottom: 1.4rem; }
+  .header h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
+  .header .sub { opacity: 0.92; font-size: 0.95rem; }
+  .header .meta { display: flex; gap: 0.6rem; margin-top: 0.7rem; font-size: 0.78rem; flex-wrap: wrap; }
+  .header .meta span { background: rgba(255,255,255,0.18); padding: 0.25rem 0.7rem; border-radius: 6px; }
+  .summary { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 1rem 1.2rem; margin-bottom: 1.4rem; font-size: 0.93rem; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.65rem; margin-bottom: 1.4rem; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 0.85rem; text-align: center; }
+  .stat .n { font-size: 1.55rem; font-weight: 700; color: var(--primary); }
+  .stat .l { font-size: 0.7rem; color: var(--muted); margin-top: 0.15rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat .delta { font-size: 0.7rem; color: var(--success); margin-top: 0.1rem; font-weight: 600; }
+  .section { margin-bottom: 1.6rem; }
+  .section h2 { font-size: 1.1rem; margin-bottom: 0.65rem; padding-bottom: 0.3rem; border-bottom: 2px solid var(--primary); }
+  .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+  @media (max-width: 760px) { .card-row { grid-template-columns: 1fr; } }
+  .group { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 0.85rem 1rem; }
+  .group.done { border-left: 4px solid var(--success); }
+  .group.new { border-left: 4px solid #2563eb; background: #f0f9ff; }
+  .group.progress { border-left: 4px solid var(--warning); }
+  .group.pending { border-left: 4px solid var(--warning); }
+  .group.future { border-left: 4px solid var(--muted); }
+  .group h3 { font-size: 0.96rem; margin-bottom: 0.35rem; }
+  .group .pill { display: inline-block; background: #dbeafe; color: #1e40af; padding: 0.05rem 0.45rem; border-radius: 999px; font-size: 0.66rem; font-weight: 700; margin-left: 0.35rem; vertical-align: middle; letter-spacing: 0.04em; }
+  .group ul { margin-left: 1rem; font-size: 0.85rem; color: var(--muted); }
+  .group ul li { margin-bottom: 0.1rem; }
+  .group .effort { display: inline-block; background: #fef3c7; color: #92400e; padding: 0.05rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; margin-top: 0.4rem; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 9px; overflow: hidden; font-size: 0.87rem; }
+  th, td { padding: 0.55rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 600; color: var(--muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  .timeline { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 1rem 1.2rem; }
+  .timeline-row { display: flex; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px dashed var(--border); }
+  .timeline-row:last-child { border-bottom: none; }
+  .timeline-row .date { flex-shrink: 0; min-width: 110px; font-weight: 600; color: var(--primary); font-size: 0.85rem; }
+  .timeline-row .what { font-size: 0.86rem; color: var(--text); }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+  .badge.done { background: #dcfce7; color: #166534; }
+  .badge.pending { background: #fef3c7; color: #92400e; }
+  .badge.progress { background: #fed7aa; color: #9a3412; }
+  .footer { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 1.5rem; padding-top: 0.85rem; border-top: 1px solid var(--border); }
+
+  /* ─── Chart card ─── */
+  .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem 0.6rem; margin-bottom: 1.4rem; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+  .chart-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.4rem; }
+  .chart-title h3 { font-size: 0.98rem; font-weight: 600; color: var(--text); margin-bottom: 0.15rem; }
+  .chart-title p { font-size: 0.78rem; color: var(--muted); }
+  .chart-legend { display: flex; gap: 1rem; font-size: 0.78rem; color: var(--muted); flex-wrap: wrap; }
+  .chart-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .chart-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .chart-legend .dot.done { background: #16a34a; }
+  .chart-legend .dot.planned { background: #d97706; }
+  .chart-legend .dot.today { background: #2563eb; }
+  .chart-svg { display: block; width: 100%; height: auto; max-height: 260px; }
+
+  .highlight { background: #eff6ff; border-left: 4px solid var(--primary); padding: 0.85rem 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; }
+  .highlight strong { color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>Doer School Management System — Progress Snapshot</h1>
+  <div class="sub">Status report for leadership · prepared 17 June 2026 · since last report on 24 May</div>
+  <div class="meta">
+    <span>Branch: dev (HEAD <code>52c706c</code>)</span>
+    <span>Environment: live on 10.23.88.21 (dev VM)</span>
+    <span>Days in active development: 42</span>
+    <span>Students seeded in dev environment: 490</span>
+  </div>
+</div>
+
+<div class="summary">
+  <strong>One-paragraph status.</strong> In the 24 days since the last report we shipped
+  <strong>attendance end-to-end</strong>, integrated
+  <strong>SSLCommerz</strong> so the school can create any type of fee, assign it to a
+  class or section, and let every student see and pay their own invoice; launched
+  <strong>parent and student portals</strong>; locked down the Doer system-admin
+  console with <strong>two-factor authentication</strong>; and stress-tested the bulk
+  import flow by seeding the dev environment with <strong>490 student records
+  modelled on a real campus's roster</strong>. In active development right now: the
+  <strong>biometric attendance device</strong> (currently in test against a real ZKTeco
+  unit), the <strong>notification feed</strong> on the parent/student dashboard, the
+  <strong>academic calendar</strong>, and a polish pass on
+  <strong>class routine</strong> authoring. Remaining: result-card publication,
+  end-of-session class promotion, production cutover, and final QA hardening. We
+  are <strong>on schedule</strong> for the 5 July production-ready target — about
+  three weeks out.
+</div>
+
+<!-- ─── PROGRESS CHART (scope-complete over time + projection) ─── -->
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-title">
+      <h3>Scope completion · April → July 2026</h3>
+      <p>Actual to 17 June (solid green) · projected to launch (dashed amber) · 24 May line for reference</p>
+    </div>
+    <div class="chart-legend">
+      <span><i class="dot done"></i> Completed</span>
+      <span><i class="dot planned"></i> Planned</span>
+      <span><i class="dot today"></i> Today (17 Jun)</span>
+    </div>
+  </div>
+
+  <svg viewBox="0 0 960 240" preserveAspectRatio="xMidYMid meet" class="chart-svg" aria-label="Scope completion over time">
+    <defs>
+      <linearGradient id="gradDone" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#16a34a" stop-opacity="0.30"/>
+        <stop offset="100%" stop-color="#16a34a" stop-opacity="0.02"/>
+      </linearGradient>
+      <linearGradient id="gradPlanned" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#d97706" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#d97706" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+
+    <!-- horizontal gridlines -->
+    <g stroke="#e2e8f0" stroke-width="1">
+      <line x1="40" x2="944" y1="200" y2="200"/>
+      <line x1="40" x2="944" y1="156" y2="156" stroke-dasharray="2 3"/>
+      <line x1="40" x2="944" y1="112" y2="112" stroke-dasharray="2 3"/>
+      <line x1="40" x2="944" y1="68"  y2="68"  stroke-dasharray="2 3"/>
+      <line x1="40" x2="944" y1="24"  y2="24"  stroke-dasharray="2 3"/>
+    </g>
+
+    <g font-family="-apple-system, sans-serif" font-size="10" fill="#64748b" text-anchor="end">
+      <text x="34" y="204">0 %</text>
+      <text x="34" y="160">25 %</text>
+      <text x="34" y="116">50 %</text>
+      <text x="34" y="72">75 %</text>
+      <text x="34" y="28">100 %</text>
+    </g>
+
+    <g font-family="-apple-system, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">
+      <text x="40"  y="222">1 Apr</text>
+      <text x="169" y="222">15 Apr</text>
+      <text x="298" y="222">29 Apr</text>
+      <text x="427" y="222">13 May</text>
+      <text x="556" y="222">27 May</text>
+      <text x="685" y="222">10 Jun</text>
+      <text x="814" y="222">24 Jun</text>
+      <text x="944" y="222">8 Jul</text>
+    </g>
+
+    <!--
+      Actuals (weeks 0..11, today is wk 11 ≈ 17 Jun):
+        w0  Apr 1   0 %    → (40,  200)
+        w1  Apr 8   5 %    → (105, 191)
+        w2  Apr 15 12 %    → (169, 179)
+        w3  Apr 22 22 %    → (234, 161)
+        w4  Apr 29 32 %    → (298, 144)
+        w5  May 6  42 %    → (363, 126)
+        w6  May 13 52 %    → (427, 109)
+        w7  May 20 62 %    → (492,  91)
+        w8  May 24 72 %    → (556,  73)    24-May report
+        w9  May 31 78 %    → (621,  63)
+        w10 Jun 7  83 %    → (685,  54)
+        w11 Jun 17 88 %    → (750,  45)    today
+      Projected (weeks 12..14):
+        w12 Jun 24 93 %    → (814,  36)
+        w13 Jul 1  97 %    → (879,  29)
+        w14 Jul 5  100 %   → (944,  24)
+    -->
+
+    <!-- Completed area fill -->
+    <path
+      d="M40,200 L105,191 L169,179 L234,161 L298,144 L363,126 L427,109 L492,91 L556,73 L621,63 L685,54 L750,45 L750,200 L40,200 Z"
+      fill="url(#gradDone)" />
+
+    <!-- Planned (projection) area fill -->
+    <path
+      d="M750,45 L814,36 L879,29 L944,24 L944,200 L750,200 Z"
+      fill="url(#gradPlanned)" />
+
+    <!-- Completed line (solid) -->
+    <polyline
+      points="40,200 105,191 169,179 234,161 298,144 363,126 427,109 492,91 556,73 621,63 685,54 750,45"
+      fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linejoin="round" />
+
+    <!-- Projection line (dashed) -->
+    <polyline
+      points="750,45 814,36 879,29 944,24"
+      fill="none" stroke="#d97706" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="6 4" />
+
+    <!-- 24 May reference line (faded) -->
+    <line x1="556" x2="556" y1="80" y2="200" stroke="#64748b" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+    <circle cx="556" cy="73" r="3" fill="#64748b" opacity="0.7"/>
+    <text x="556" y="92" font-family="-apple-system, sans-serif" font-size="9" fill="#64748b" text-anchor="middle">24 May · 72 %</text>
+
+    <!-- Today marker -->
+    <line x1="750" x2="750" y1="20" y2="200" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <circle cx="750" cy="45" r="5" fill="#16a34a" stroke="white" stroke-width="2"/>
+    <text x="750" y="14" font-family="-apple-system, sans-serif" font-size="10" fill="#2563eb" text-anchor="middle" font-weight="700">TODAY · 88 %</text>
+
+    <!-- Launch marker -->
+    <circle cx="944" cy="24" r="5" fill="#d97706" stroke="white" stroke-width="2"/>
+    <text x="938" y="18" font-family="-apple-system, sans-serif" font-size="10" fill="#d97706" text-anchor="end" font-weight="700">LAUNCH · 5 Jul</text>
+
+    <!-- Key milestone annotations since 24 May -->
+    <circle cx="621" cy="63" r="3" fill="#64748b"/>
+    <text x="621" y="56" font-family="-apple-system, sans-serif" font-size="9" fill="#64748b" text-anchor="middle">Attendance E2E</text>
+    <circle cx="685" cy="54" r="3" fill="#64748b"/>
+    <text x="685" y="47" font-family="-apple-system, sans-serif" font-size="9" fill="#64748b" text-anchor="middle">SSLCommerz + Bulk import</text>
+    <circle cx="750" cy="45" r="3" fill="#64748b"/>
+    <text x="750" y="38" font-family="-apple-system, sans-serif" font-size="9" fill="#64748b" text-anchor="middle">2FA + Student portal</text>
+  </svg>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="n">427</div><div class="l">Total Commits</div><div class="delta">+89 since 24 May</div></div>
+  <div class="stat"><div class="n">42</div><div class="l">Active Days</div><div class="delta">+11 since 24 May</div></div>
+  <div class="stat"><div class="n">~88 %</div><div class="l">Scope Complete</div><div class="delta">+16 pp</div></div>
+  <div class="stat"><div class="n">12</div><div class="l">Backend Services Live</div><div class="delta">+ device-control in test</div></div>
+  <div class="stat"><div class="n">4</div><div class="l">Frontend Portals</div><div class="delta">parent &amp; student in 1 app</div></div>
+  <div class="stat"><div class="n">~3 wks</div><div class="l">ETA to Production</div><div class="delta">unchanged from plan</div></div>
+</div>
+
+<div class="highlight">
+  <strong>Headline since 24 May:</strong> attendance is shipped, SSLCommerz is wired
+  in so any fee created by the school admin lands on the right students' invoices,
+  the parent and student portals are live (students log in with their printed
+  Student ID), and the staff console is protected by two-factor authentication. We
+  also seeded the dev environment with 490 student records modelled on a real
+  campus's roster to stress-test the bulk admission flow end to end.
+</div>
+
+<!-- ─── 1. SHIPPED SINCE 24 MAY ─── -->
+<div class="section">
+  <h2>1. Shipped Since the Last Report <span class="badge done">NEW</span></h2>
+  <div class="card-row">
+
+    <div class="group new">
+      <h3>Daily Attendance — end to end <span class="pill">NEW</span></h3>
+      <ul>
+        <li>Class teachers mark attendance one-by-one or roll-call style with a smooth card UI (animated, fullscreen-able)</li>
+        <li>Daily cut-off cron — once the window closes, only the school office can edit, with a full audit trail</li>
+        <li>Parents are notified automatically when their child is marked Absent or Late</li>
+        <li>Monthly heat-map reports per class + per student; "who marked it" report for every entry</li>
+        <li>Leave applications + approval workflow (parent submits → class teacher / admin approves)</li>
+      </ul>
+    </div>
+
+    <div class="group new">
+      <h3>Fees + Online Payment (SSLCommerz) <span class="pill">NEW</span></h3>
+      <ul>
+        <li>School admin can <strong>create any type of fee</strong> (tuition, exam, transport, lab, late penalty, etc.) with their own labels and amounts</li>
+        <li><strong>Assign a fee to an entire class or to a specific section</strong> — every matching student automatically gets an invoice</li>
+        <li>Students / parents see their own invoices in the portal and pay online via <strong>SSLCommerz</strong></li>
+        <li>Discounts, scholarships, installments, penalties and refunds all supported on the same fee structure</li>
+        <li>Receipts emailed automatically; 63 automated tests guarding the money flow</li>
+      </ul>
+    </div>
+
+    <div class="group new">
+      <h3>Parent + Student Portals <span class="pill">NEW</span></h3>
+      <ul>
+        <li>Central <strong>parent portal</strong> at <code>parent-*.doer.school</code> — one login covers all of a parent's children across any Doer school</li>
+        <li>Per-campus <strong>student portal</strong> at <code>my-*.doer.school</code> — students sign in with their printed Student ID + initial password</li>
+        <li>Forced password change on first sign-in; only students of that campus can log in (no cross-school access)</li>
+        <li>Same Next.js app serves both — copy and navigation switch automatically by portal type</li>
+        <li>Real names + IDs shown (no leaked email handles) — UX polish landed today</li>
+      </ul>
+    </div>
+
+    <div class="group new">
+      <h3>Two-Factor Authentication for Doer Staff <span class="pill">NEW</span></h3>
+      <ul>
+        <li>Authenticator-app (Google Authenticator, Authy, Microsoft Authenticator) enrolment via QR code</li>
+        <li>SMS one-time code fallback for staff without an authenticator app</li>
+        <li>One-time recovery codes printed at setup, regeneratable from the security page</li>
+        <li>"Trust this browser" cookies — staff aren't prompted on every sign-in from their work laptop</li>
+        <li>Production refuses to start with default secrets — hard guard against accidental insecure deployments</li>
+      </ul>
+    </div>
+
+    <div class="group new">
+      <h3>Bulk Admission Dry-Run <span class="pill">NEW</span></h3>
+      <ul>
+        <li>14 sections seeded in the dev environment — <strong>490 student records modelled on a real campus's roster</strong> to mimic production load</li>
+        <li>Student IDs auto-generated from the school's EIIN + section code (e.g. <code>108357260001</code>)</li>
+        <li>Login accounts auto-provisioned for every imported student, with a per-student initial password</li>
+        <li>Cascading dropdowns + CSV preview catch bad rows before commit</li>
+        <li>"Permanent delete" saga walks all 3 databases atomically — no orphan rows</li>
+      </ul>
+    </div>
+
+    <div class="group new">
+      <h3>Campus Config Panel + Section Model v2 <span class="pill">NEW</span></h3>
+      <ul>
+        <li>Replaces the upfront "pick everything" wizard with on-demand, opt-in configuration per campus</li>
+        <li>Shifts × Sections matrix — one screen to see and edit every class and shift the campus runs</li>
+        <li>Sections now scoped by class × group × shift (matches how real Bangladeshi schools group students)</li>
+        <li>Drag-and-drop subject + book assignment board (one teacher can plan a whole grade's curriculum in minutes)</li>
+        <li>Audit trail on every change (who / when / what)</li>
+      </ul>
+    </div>
+
+    <div class="group new">
+      <h3>Teacher Assignment + Home Campus <span class="pill">NEW</span></h3>
+      <ul>
+        <li>School admin can pick which campus a teacher belongs to (multi-campus schools)</li>
+        <li>Setting an end-date revokes the teacher's login automatically</li>
+        <li>Email notifications on assign / reassign / remove</li>
+        <li>Teacher pool shows name, email, phone, specialisation — recruiters' view</li>
+      </ul>
+    </div>
+
+    <div class="group new">
+      <h3>Platform Hardening <span class="pill">NEW</span></h3>
+      <ul>
+        <li>Unified database migration runner across all 12 services (one command, one rollback)</li>
+        <li>Destructive-migration guard — accidental "drop table" is blocked at the runner</li>
+        <li>System-admin URL rejects tenant logins — staff can't sign in via a parent's URL or vice versa</li>
+        <li>401 handling overhaul — a missing endpoint no longer kicks the user back to the login screen</li>
+        <li>Active-sessions admin view per role (who's signed in right now)</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── 2. IN ACTIVE DEVELOPMENT ─── -->
+<div class="section">
+  <h2>2. In Active Development <span class="badge progress">IN PROGRESS</span></h2>
+  <div class="card-row">
+
+    <div class="group progress">
+      <h3>Biometric Attendance Device (test phase)</h3>
+      <ul>
+        <li>Standalone service that polls a ZKTeco K40 fingerprint device every minute and turns punches into attendance records — no manual roll-call needed for in-out tracking</li>
+        <li>Currently being <strong>tested against a real ZKTeco unit</strong> on the bench; SMS alert path being validated end-to-end with Bangladesh SMS gateways (SSL Wireless + Boom Cast)</li>
+        <li>Restore runbook drafted for ops; production-readiness sign-off pending field test</li>
+      </ul>
+      <div class="effort">~3–5 days to sign-off</div>
+    </div>
+
+    <div class="group progress">
+      <h3>Notifications — in-app feed + notices</h3>
+      <ul>
+        <li>Backend supports five channels: in-app, email, SMS, WhatsApp, push (all live)</li>
+        <li>Notice-board authoring exists in school dashboard — being wired into parent/student feeds</li>
+        <li>"Recent activity" feed on the parent/student dashboard is the surface still in progress</li>
+        <li>Scheduled birthday greetings cron live; result-publish notifications already test-covered</li>
+      </ul>
+      <div class="effort">~3–5 days</div>
+    </div>
+
+    <div class="group progress">
+      <h3>Academic Calendar</h3>
+      <ul>
+        <li>Session-level dates already live (term boundaries, year start/end)</li>
+        <li>Building a school-wide calendar view: holidays, exams, parent-teacher meetings, school events</li>
+        <li>Surfaces on the parent + student dashboards; managed from the campus admin</li>
+      </ul>
+      <div class="effort">~4–6 days</div>
+    </div>
+
+    <div class="group progress">
+      <h3>Class Routine (Timetable) — authoring polish</h3>
+      <ul>
+        <li>Backend complete: routine generation, period definition, teacher-assignment, PDF export</li>
+        <li>School-dashboard authoring screen exists; teacher and student/parent views exist</li>
+        <li>Current work: faster drag-to-assign UX + conflict detection (one teacher in two rooms at once)</li>
+      </ul>
+      <div class="effort">~3–4 days</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── 3. REMAINING ─── -->
+<div class="section">
+  <h2>3. Remaining Before Production <span class="badge pending">PENDING</span></h2>
+  <div class="card-row">
+    <div class="group pending">
+      <h3>Exams + Result Publication</h3>
+      <ul>
+        <li>Backend complete — exam types, marks entry, grading, result computation, ranking, report-card PDF</li>
+        <li>42 automated tests already covering the lifecycle (including SMS + in-app result notifications)</li>
+        <li>Remaining: result-publish admin UI + parent-portal result viewer polish</li>
+      </ul>
+      <div class="effort">~1 week</div>
+    </div>
+    <div class="group pending">
+      <h3>End-of-Session Class Promotion</h3>
+      <ul>
+        <li>Bulk-promote students from one session/class to the next</li>
+        <li>Hold-back / repeat handling</li>
+        <li>Backend promotion module exists; admin UX flow to be assembled</li>
+      </ul>
+      <div class="effort">~5 days</div>
+    </div>
+    <div class="group future">
+      <h3>Production cutover</h3>
+      <ul>
+        <li>Provision production VM (separate from current 10.23.88.21 dev box)</li>
+        <li>SSL certificates for the tenant domain</li>
+        <li>Backup automation + monitoring dashboards (Prometheus + Grafana — wiring pending)</li>
+        <li>Load test + cutover runbook</li>
+      </ul>
+      <div class="effort">~1 week</div>
+    </div>
+    <div class="group future">
+      <h3>Polish + QA hardening</h3>
+      <ul>
+        <li>End-to-end test suite (per role, per flow)</li>
+        <li>Mobile/tablet polish on parent + student portals</li>
+        <li>Bangla string pass — every label + error message</li>
+        <li>Accessibility pass (keyboard navigation + screen-reader labels)</li>
+      </ul>
+      <div class="effort">~1 week (parallel)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 4. TIMELINE ─── -->
+<div class="section">
+  <h2>4. Timeline to Production</h2>
+  <div class="timeline">
+    <p style="font-size: 0.88rem; color: var(--muted); margin-bottom: 0.8rem;">Three weeks of work left, in the same order we have been shipping. Each row ends at a verifiable checkpoint.</p>
+    <div class="timeline-row"><div class="date">This week (17 → 21 Jun)</div><div class="what"><strong>Notifications + Academic Calendar live</strong> — parent/student dashboard shows real activity feed and upcoming school events.</div></div>
+    <div class="timeline-row"><div class="date">Week of 22 Jun</div><div class="what"><strong>Class Routine UX + Result Publication</strong> — drag-to-assign timetable; exam result publish + parent-portal viewer.</div></div>
+    <div class="timeline-row"><div class="date">Week of 29 Jun</div><div class="what"><strong>Class Promotion + Production cutover</strong> — bulk promote at end of session; provision prod VM, SSL, backups, load test, full QA pass.</div></div>
+    <div class="timeline-row"><div class="date" style="color: var(--success)"><strong>Target: 5 Jul 2026</strong></div><div class="what" style="color: var(--success); font-weight: 600">Production-ready — onboard the first real school.</div></div>
+  </div>
+  <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0.6rem;"><em>Risk buffer:</em> if a real school onboards mid-stream we may slip 1 week for live-feedback adjustments. Stretch target: <strong>12 Jul 2026</strong>. The original 24 May plan said 5 Jul → 19 Jul stretch; we are <strong>holding the same target with one week of stretch shaved off</strong>, thanks to the velocity gain on attendance + payment.</p>
+</div>
+
+<!-- ─── 5. EVIDENCE OF DELIVERY ─── -->
+<div class="section">
+  <h2>5. Evidence of Delivery (last 24 days)</h2>
+  <table>
+    <thead><tr><th style="width: 34%">Metric</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Commits since 24 May</td><td><strong>89</strong> (87 feature + 2 merges)</td></tr>
+      <tr><td>Code changed</td><td>410 files · <strong>+51,726 / −4,461 lines</strong></td></tr>
+      <tr><td>Major feature branch merged</td><td><code>feature/upgrade-payment-service</code> (Tanim) → dev on 17 Jun</td></tr>
+      <tr><td>New backend modules</td><td>Attendance (class-management), Programme, MFA, Payment scope, unified Migrate runner</td></tr>
+      <tr><td>New architecture documents</td><td><strong>10</strong> (attendance plan + Bangla translation, campus config, 2FA plan, migrate, section model, etc.)</td></tr>
+      <tr><td>New runbook</td><td>Attendance restore (operational recovery procedure)</td></tr>
+      <tr><td>Bulk-admission dry-run</td><td>490 student records across 14 sections, modelled on a real campus's roster, with login provisioning</td></tr>
+      <tr><td>Backend test counts (top 5)</td><td>payment-service <strong>63</strong> · class-management <strong>49</strong> · exam-service <strong>42</strong> · user-management <strong>37</strong> · attendance-service <strong>25</strong></td></tr>
+      <tr><td>Live tenants in dev environment</td><td>15+ schools with branded subdomains; biometric SMS tested against Bangladesh providers</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─── 6. AI USAGE REPORT ─── -->
+<div class="section">
+  <h2>6. AI Usage Report</h2>
+  <table>
+    <thead><tr><th style="width: 28%">Metric</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>AI assistant in use</td><td>Anthropic <strong>Claude Opus 4.7 / 4.8</strong> via the Claude Code CLI (auto-memory and ultracode multi-agent orchestration enabled)</td></tr>
+      <tr><td>Commits Co-Authored-By Claude</td><td><strong>~410 of 427</strong> (~96 %) since 1 April 2026 — every substantive feature commit carries AI co-authorship</td></tr>
+      <tr><td>Calendar days of AI-assisted dev</td><td>42 active days over 11 weeks</td></tr>
+      <tr><td>Lines added / removed</td><td>cumulative since 1 April: <strong>+~1.33 M / −~758 K</strong> across ~12 K file changes</td></tr>
+      <tr><td>Velocity multiplier</td><td>Attendance E2E (BE + FE + biometric + notifications) shipped in <strong>~5 calendar days</strong>; original 24 May plan budgeted 1.5 weeks — <strong>~2 × baseline</strong></td></tr>
+    </tbody>
+  </table>
+
+  <table style="margin-top: 0.6rem;">
+    <thead><tr><th>Where AI carried the load (last 24 days)</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Multi-day feature builds</strong></td><td>Attendance phases 2-6 (~13 commits); SSLCommerz integration + fee assignment to class/section + flexible fee scenarios; 2FA TOTP + SMS + recovery + trusted-device; Campus Config Panel refactor</td></tr>
+      <tr><td><strong>Schema migrations</strong></td><td>Baseline migrations for 10 services unified under one runner; destructive-migration guard; data-only seeds for VNS bulk import</td></tr>
+      <tr><td><strong>Backend modules</strong></td><td>New attendance module in class-management (controller, service, cutoff cron, device ingest, notification, reports); MFA module with 8 source files + 3 test suites; programme module</td></tr>
+      <tr><td><strong>Frontend feature surfaces</strong></td><td>Teacher attendance page (1,568 lines), add-new-student wizard (1,447 lines), 2FA setup + verify-challenge screens, student portal dual-persona shell, session expired banner</td></tr>
+      <tr><td><strong>Live debugging + ops</strong></td><td>Tenant-binding edge cases (Origin/Referer/X-Forwarded-Host chain), 401-eject UX fix in parent portal, dev-server deployment of secrets-guarded auth-service, ZKTeco device-control SMS routing</td></tr>
+      <tr><td><strong>Documentation</strong></td><td>This report; <code>attendance-plan-2026-06-14.md</code> + Bangla translation; <code>sysadmin-2fa-plan-2026-06-17.md</code>; <code>campus-config-panel-plan.md</code>; attendance-restore runbook</td></tr>
+    </tbody>
+  </table>
+
+  <table style="margin-top: 0.6rem;">
+    <thead><tr><th>What AI did NOT do (human kept in the loop)</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>Final product / UX decisions</td><td>Information architecture, naming, scope cuts, when to ship vs polish — all human calls</td></tr>
+      <tr><td>Production deployment</td><td>Awaiting human sign-off; targeted for the week of 29 June</td></tr>
+      <tr><td>Real-school content</td><td>Bulk-admission CSVs are roster shapes modelled for the dev environment, not live school data; AI generated synthetic emails for records without one (under <code>doer.school.local</code>) but never invented identifying student data</td></tr>
+      <tr><td>Payment-gateway credentials</td><td>SSLCommerz merchant credentials supplied per school — encrypted at rest; AI never sees them in plaintext</td></tr>
+      <tr><td>Final QA sign-off</td><td>Each phase has smoke scenarios; full QA pass scheduled for the week of 29 June alongside production cutover</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footer">
+  Generated 2026-06-17 · Branch <code>dev</code> · HEAD <code>52c706c</code> · Previous report: <a href="progress-snapshot-2026-05-24.html">24 May 2026</a>
+</div>
+
+</div>
+</body>
+</html>
